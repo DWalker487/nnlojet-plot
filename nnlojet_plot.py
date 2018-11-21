@@ -22,6 +22,7 @@ def read_args():
     parser.add_argument("infiles", help="NNLOJET infile(s) to plot.", nargs="+")
     parser.add_argument("--mode", "-m", help="Plot mode: histogram plot or line plot",
                         choices=PLOT_MODES.keys(), default="hist")
+    parser.add_argument("--savefig", "-s", help="Save figure to file with given name")
     args = parser.parse_args()
     return args
 
@@ -59,4 +60,6 @@ if __name__ == "__main__":
         plot_scale_variation(data, ax, colour=next(colours),
                              name=os.path.basename(NNLOJETfile),
                              mode=args.mode)
+    if args.savefig is not None:
+        plt.savefig(args.savefig)
     plt.show()
