@@ -11,6 +11,6 @@ This are not necessarily designed as publication quality plots, rather a quick w
 ## Examples:
 Some example plots using dijet production in positron-proton charged current DIS data from [this paper](https://arxiv.org/abs/1807.02529).
 Example plot for the Histogram plot mode:
-![ ](figs/hist.pdf  "Histogram")
+![ ](figs/hist.jpeg  "Histogram")
 Example plot for the Line plot mode:
-![ ](figs/lines.pdf  "Line")
+![ ](figs/lines.jpeg  "Line")
