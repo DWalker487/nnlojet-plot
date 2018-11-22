@@ -19,11 +19,21 @@ PLOT_MODES = {"hist": pt.do_hist_plot,
 def read_args():
     """ Function wrapping all command line argument parsing. """
     parser = ap.ArgumentParser(description="NNLOJET data functionality.")
-    parser.add_argument("infiles", help="NNLOJET infile(s) to plot.", nargs="+")
-    parser.add_argument("--mode", "-m", help="Plot mode: histogram plot or line plot",
+    parser.add_argument("infiles",
+                        help="NNLOJET infile(s) to plot.", nargs="+")
+    parser.add_argument("--mode", "-m",
+                        help="Plot mode: histogram plot or line plot",
                         choices=PLOT_MODES.keys(), default="hist")
-    parser.add_argument("--ratio", "-r", help="Plot the ratio of all input files to this file")
-    parser.add_argument("--savefig", "-s", help="Save figure to file with given name")
+    parser.add_argument("--ratio", "-r",
+                        help="Plot the ratio of all input files to this file")
+    parser.add_argument("--grid", "-g", action="store_true",
+                        help="Add a grid to the plot")
+    parser.add_argument("--savefig", "-s",
+                        help="Save figure to file with given name")
+    parser.add_argument("--logx", action="store_true",
+                        help="Plot output with logarithmic x values")
+    parser.add_argument("--logy", action="store_true",
+                        help="Plot output with logarithmic y values")
     args = parser.parse_args()
     return args
 
@@ -36,7 +46,8 @@ def colour_gen():
 
 
 def plot_scale_variation(df, ax=None, colour="blue", name="Central Scale",
-                         mode="hist"):
+                         mode="hist", ylabel=None, grid=False, logx=False,
+                         logy=False):
     """ Example plot function, with choice of histogram or line type plot.
     plt.show() must be called afterwards."""
     if ax is None:
@@ -48,7 +59,16 @@ def plot_scale_variation(df, ax=None, colour="blue", name="Central Scale",
     x_mid_name = "_".join(x_mid.split("_")[:-1])
     ax.set_xlabel(x_mid_name)
     ax.set_title(x_mid_name)
-    ax.set_ylabel("dsigma/d{0}".format(x_mid_name))
+    if ylabel is None:
+        ax.set_ylabel("dsigma/d{0}".format(x_mid_name))
+    else:
+        ax.set_ylabel(ylabel)
+    if grid:
+        ax.grid()
+    if logx:
+        ax.set_xscale("log", nonposx='clip')
+    if logy:
+        ax.set_yscale("log", nonposy='clip')
     plt.legend()
 
 
@@ -62,10 +82,12 @@ if __name__ == "__main__":
         alldata[NNLOJETfile] = data
         plot_scale_variation(data, ax, colour=next(colours),
                              name=os.path.basename(NNLOJETfile),
-                             mode=args.mode)
+                             mode=args.mode, grid=args.grid, logy=args.logy,
+                             logx=args.logx)
 
     if args.savefig is not None:
         plt.savefig(args.savefig)
+
     if args.ratio is not None:
         colours = colour_gen()
         fig, ax = plt.subplots()
@@ -75,11 +97,14 @@ if __name__ == "__main__":
             ratio_df = util.ratio_NNLOJET_files(values, baseline)
             fname = "{0}/{1}".format(os.path.basename(fname),
                                      os.path.basename(args.ratio))
+            ylabel = "Ratio to {0}".format(os.path.basename(args.ratio))
             plot_scale_variation(ratio_df, ax, colour=next(colours),
-                                 name=fname,
-                                 mode=args.mode)
+                                 name=fname, mode=args.mode, ylabel=ylabel,
+                                 grid=args.grid, logx=args.logx)
+
     if args.savefig is not None:
         name_pieces = args.savefig.split(".")
         ratio_fname = ".".join(name_pieces[:-1])+"_ratio." + name_pieces[-1]
         plt.savefig(ratio_fname)
+
     plt.show()
