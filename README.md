@@ -20,16 +20,20 @@ Some example plots using dijet production in positron-proton charged current DIS
 
 Example plot for the Histogram plot mode:
 
-![ ](figs/hist.jpeg  "Histogram")
+![ ](figs/hist.jpeg  "Histogram"){:height="50%" width="50%"}
 
 Example ratio plot for the Histogram plot mode (ratio to NLO):
 
-![ ](figs/hist_ratio.jpeg  "Histogram ratio")
+![ ](figs/hist_ratio.jpeg  "Histogram ratio"){:height="50%" width="50%"}
 
 Example plot for the Line plot mode:
 
-![ ](figs/lines.jpeg  "Line")
+![ ](figs/lines.jpeg  "Line"){:height="50%" width="50%"}
 
 Example ratio plot for the Line plot mode (ratio to NLO):
 
-![ ](figs/lines_ratio.jpeg  "Line ratio")
+![ ](figs/lines_ratio.jpeg  "Line ratio"){:height="50%" width="50%"}
+
+And finally, an example combined plot (Ratio to NLO):
+
+![ ](figs/hist_combined.jpeg  "Combined histogram"){:height="50%" width="50%"}

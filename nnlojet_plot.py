@@ -34,7 +34,15 @@ def read_args():
                         help="Plot output with logarithmic x values")
     parser.add_argument("--logy", action="store_true",
                         help="Plot output with logarithmic y values")
+    parser.add_argument("--combine","-c", action="store_true",
+                        help="Plot ratio one the same figure as the original plot. Only has an effect in combination with the --ratio command")
+    parser.add_argument("--noshow", action="store_true", default=False,
+                        help="Include this flag to not display the figures.")
     args = parser.parse_args()
+
+    if args.combine and not args.ratio:
+        args.combine = False
+
     return args
 
 
@@ -47,18 +55,19 @@ def colour_gen():
 
 def plot_scale_variation(df, ax=None, colour="blue", name="Central Scale",
                          mode="hist", ylabel=None, grid=False, logx=False,
-                         logy=False):
+                         logy=False, do_title=True):
     """ Example plot function, with choice of histogram or line type plot.
     plt.show() must be called afterwards."""
     if ax is None:
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=config.FIGSIZE)
     x_lo, x_mid, x_hi, y, y_err = df.columns[0:5]
     PLOT_MODES[mode](df, x_lo, x_mid, x_hi, y, y_err, ax,
                      label=name, colour=colour)
     ax.set_xlim((data[data.columns[0]].min(), data[data.columns[2]].max()))
     x_mid_name = "_".join(x_mid.split("_")[:-1])
     ax.set_xlabel(x_mid_name)
-    ax.set_title(x_mid_name)
+    if do_title:
+        ax.set_title(x_mid_name)
     if ylabel is None:
         ax.set_ylabel("dsigma/d{0}".format(x_mid_name))
     else:
@@ -74,7 +83,14 @@ def plot_scale_variation(df, ax=None, colour="blue", name="Central Scale",
 
 if __name__ == "__main__":
     args = read_args()
-    fig, ax = plt.subplots()
+    if args.combine:
+        fig, axes = plt.subplots(nrows=2, sharex=True,
+                                 gridspec_kw={'height_ratios': [3, 1]},
+                                 figsize=config.FIGSIZE)
+        fig.subplots_adjust(hspace=0)
+        ax = axes[0]
+    else:
+        fig, ax = plt.subplots(figsize=config.FIGSIZE)
     colours = colour_gen()
     alldata = {}
     for NNLOJETfile in args.infiles:
@@ -85,12 +101,15 @@ if __name__ == "__main__":
                              mode=args.mode, grid=args.grid, logy=args.logy,
                              logx=args.logx)
 
-    if args.savefig is not None:
+    if args.savefig is not None and not args.combine:
         plt.savefig(args.savefig)
 
     if args.ratio is not None:
         colours = colour_gen()
-        fig, ax = plt.subplots()
+        if args.combine:
+            ax = axes[1]
+        else:
+            fig, ax = plt.subplots(figsize=config.FIGSIZE)
         baseline = alldata[args.ratio]
         for fname in alldata.keys():
             values = alldata[fname]
@@ -100,11 +119,14 @@ if __name__ == "__main__":
             ylabel = "Ratio to {0}".format(os.path.basename(args.ratio))
             plot_scale_variation(ratio_df, ax, colour=next(colours),
                                  name=fname, mode=args.mode, ylabel=ylabel,
-                                 grid=args.grid, logx=args.logx)
+                                 grid=args.grid, logx=args.logx, do_title=False)
 
     if args.savefig is not None:
-        name_pieces = args.savefig.split(".")
-        ratio_fname = ".".join(name_pieces[:-1])+"_ratio." + name_pieces[-1]
-        plt.savefig(ratio_fname)
-
-    plt.show()
+        if not args.combine: # Save ratio as separate figure
+            name_pieces = args.savefig.split(".")
+            ratio_fname = ".".join(name_pieces[:-1])+"_ratio." + name_pieces[-1]
+            plt.savefig(ratio_fname)
+        else:
+            plt.savefig(args.savefig)
+    if not args.noshow:
+        plt.show()
