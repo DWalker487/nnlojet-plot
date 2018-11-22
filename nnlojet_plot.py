@@ -4,9 +4,9 @@ For more info, run
         python3 nnlojet_plot.py --help
 """
 import argparse as ap
+import config
 import matplotlib.pyplot as plt
 import os
-import pandas as pd
 import plot_types as pt
 import utilities as util
 
@@ -22,6 +22,7 @@ def read_args():
     parser.add_argument("infiles", help="NNLOJET infile(s) to plot.", nargs="+")
     parser.add_argument("--mode", "-m", help="Plot mode: histogram plot or line plot",
                         choices=PLOT_MODES.keys(), default="hist")
+    parser.add_argument("--ratio", "-r", help="Plot the ratio of all input files to this file")
     parser.add_argument("--savefig", "-s", help="Save figure to file with given name")
     args = parser.parse_args()
     return args
@@ -30,7 +31,7 @@ def read_args():
 def colour_gen():
     """ Generator that iterates through a colour set."""
     while True:
-        for col in ["blue", "red", "green", "orange"]:
+        for col in config.ALLOWED_COLOURS:
             yield col
 
 
@@ -55,11 +56,30 @@ if __name__ == "__main__":
     args = read_args()
     fig, ax = plt.subplots()
     colours = colour_gen()
+    alldata = {}
     for NNLOJETfile in args.infiles:
         data = util.load_NNLOJET_file(NNLOJETfile)
+        alldata[NNLOJETfile] = data
         plot_scale_variation(data, ax, colour=next(colours),
                              name=os.path.basename(NNLOJETfile),
                              mode=args.mode)
+
     if args.savefig is not None:
         plt.savefig(args.savefig)
+    if args.ratio is not None:
+        colours = colour_gen()
+        fig, ax = plt.subplots()
+        baseline = alldata[args.ratio]
+        for fname in alldata.keys():
+            values = alldata[fname]
+            ratio_df = util.ratio_NNLOJET_files(values, baseline)
+            fname = "{0}/{1}".format(os.path.basename(fname),
+                                     os.path.basename(args.ratio))
+            plot_scale_variation(ratio_df, ax, colour=next(colours),
+                                 name=fname,
+                                 mode=args.mode)
+    if args.savefig is not None:
+        name_pieces = args.savefig.split(".")
+        ratio_fname = ".".join(name_pieces[:-1])+"_ratio." + name_pieces[-1]
+        plt.savefig(ratio_fname)
     plt.show()

@@ -36,8 +36,9 @@ def do_hist_plot(df, x_lo, x_mid, x_hi, y, y_err, ax,
 
     ax.fill_between(df[x_hi], df["scale_up"], df["scale_down"], step="pre",
                     color=colour, alpha=0.1)
-    ax.fill_between(df[x_lo], df["scale_up"], df["scale_down"], step="post",
-                    color=colour, alpha=0.1)
+    # [:2] such that we don't double fill_between certain entries...
+    ax.fill_between(df[x_lo][:2], df["scale_up"][:2], df["scale_down"][:2],
+                    step="post", color=colour, alpha=0.1)
 
     ax.errorbar(df[x_mid], df[y], df[y_err],
                 color=colour, label="_nolegend_",
