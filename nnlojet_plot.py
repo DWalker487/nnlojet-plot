@@ -9,11 +9,13 @@ import matplotlib.pyplot as plt
 import os
 import plot_types as pt
 import utilities as util
+import matplotlib
 
 PLOT_MODES = {"hist": pt.do_hist_plot,
               "h": pt.do_hist_plot,
               "l": pt.do_line_plot,
               "line": pt.do_line_plot}
+
 
 
 def read_args():
@@ -63,7 +65,7 @@ def plot_scale_variation(df, ax=None, colour="blue", name="Central Scale",
     x_lo, x_mid, x_hi, y, y_err = df.columns[0:5]
     PLOT_MODES[mode](df, x_lo, x_mid, x_hi, y, y_err, ax,
                      label=name, colour=colour)
-    ax.set_xlim((data[data.columns[0]].min(), data[data.columns[2]].max()))
+    ax.set_xlim((df[df.columns[0]].min(), df[df.columns[2]].max()))
     x_mid_name = "_".join(x_mid.split("_")[:-1])
     ax.set_xlabel(x_mid_name)
     if do_title:
@@ -128,5 +130,6 @@ if __name__ == "__main__":
             plt.savefig(ratio_fname)
         else:
             plt.savefig(args.savefig)
+
     if not args.noshow:
         plt.show()
