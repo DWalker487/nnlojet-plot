@@ -40,3 +40,11 @@ def ratio_NNLOJET_files(numerator, denominator):
     df["scale_up"] = numerator["scale_up"]/denominator["tot_scale01"]
     df["scale_down"] = numerator["scale_down"]/denominator["tot_scale01"]
     return df
+
+
+def colour_gen(allowed_colours):
+    """ Generator that iterates through a colour set."""
+    while True:
+        for col in allowed_colours:
+            yield col
+

@@ -43,3 +43,5 @@ def do_hist_plot(df, x_lo, x_mid, x_hi, y, y_err, ax,
     ax.errorbar(df[x_mid], df[y], df[y_err],
                 color=colour, label="_nolegend_",
                 fmt="o", markersize=0)
+
+
