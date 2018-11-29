@@ -20,9 +20,9 @@ def load_NNLOJET_file(infile):
 
 def ratio_NNLOJET_files(numerator, denominator):
     # Check all columns are the same in both dataframes
-    assert all(numerator.columns == denominator.columns)
+    #    assert all(numerator.columns == denominator.columns)
     # Check all rows are the same in both dataframes
-    assert all(numerator.index.values == denominator.index.values)
+    # assert all(numerator.index.values == denominator.index.values)
 
     df = pd.DataFrame(index=numerator.index.values,
                       columns=numerator.columns)

@@ -5,3 +5,4 @@ ALLOWED_COLOURS = ["blue", "red", "green", "orange", "purple", "yellow", "black"
 
 # Default figure size in inches
 FIGSIZE = (15, 15)
+

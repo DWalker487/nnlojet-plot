@@ -27,4 +27,4 @@ def plot_scale_variation(df, ax=None, colour="blue", name="Central Scale",
         ax.set_xscale("log", nonposx='clip')
     if logy:
         ax.set_yscale("log", nonposy='clip')
-    plt.legend()
+    ax.legend()

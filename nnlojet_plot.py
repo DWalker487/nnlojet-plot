@@ -31,8 +31,8 @@ def read_args():
                         help="Plot output with logarithmic x values")
     parser.add_argument("--logy", action="store_true",
                         help="Plot output with logarithmic y values")
-    parser.add_argument("--combine","-c", action="store_true",
-                        help="Plot ratio one the same figure as the original plot. Only has an effect in combination with the --ratio command")
+    parser.add_argument("--combine", "-c", action="store_true",
+                        help="Plot ratio on the same figure as the original plot. Only has an effect in combination with the --ratio command")
     parser.add_argument("--noshow", action="store_true", default=False,
                         help="Include this flag to not display the figures.")
     args = parser.parse_args()
@@ -42,16 +42,21 @@ def read_args():
 
     return args
 
+
 if __name__ == "__main__":
     args = read_args()
     if args.combine:
         fig, axes = plt.subplots(nrows=2, sharex=True,
-                                 gridspec_kw={'height_ratios': [3, 1]},
-                                 figsize=config.FIGSIZE)
-        fig.subplots_adjust(hspace=0)
+                                 gridspec_kw={'height_ratios': [3, 1]}
+                                 )
+        # The following can't be added to the call in subplots, otherwise it
+        # breaks matplotlib interactivity for some reason?
+        fig.set_size_inches(*config.FIGSIZE)
         ax = axes[0]
     else:
-        fig, ax = plt.subplots(figsize=config.FIGSIZE)
+        fig, ax = plt.subplots()
+        fig.set_size_inches(*config.FIGSIZE)
+
     colours = util.colour_gen(config.ALLOWED_COLOURS)
     alldata = {}
     for NNLOJETfile in args.infiles:
@@ -59,8 +64,12 @@ if __name__ == "__main__":
         alldata[NNLOJETfile] = data
         papi.plot_scale_variation(data, ax, colour=next(colours),
                                   name=os.path.basename(NNLOJETfile),
-                                  mode=args.mode, grid=args.grid, logy=args.logy,
+                                  mode=args.mode, grid=args.grid,
+                                  logy=args.logy,
                                   logx=args.logx, figsize=config.FIGSIZE)
+
+    if args.ratio not in args.infiles:
+        alldata[args.ratio] = util.load_NNLOJET_file(NNLOJETfile)
 
     if args.savefig is not None and not args.combine:
         plt.savefig(args.savefig)
@@ -70,9 +79,11 @@ if __name__ == "__main__":
         if args.combine:
             ax = axes[1]
         else:
-            fig, ax = plt.subplots(figsize=config.FIGSIZE)
+            fig, ax = plt.subplots()
+            fig.set_size_inches(*config.FIGSIZE)
+
         baseline = alldata[args.ratio]
-        for fname in alldata.keys():
+        for fname in args.infiles:
             values = alldata[fname]
             ratio_df = util.ratio_NNLOJET_files(values, baseline)
             fname = "{0}/{1}".format(os.path.basename(fname),
@@ -85,9 +96,10 @@ if __name__ == "__main__":
                                       do_title=False, figsize=config.FIGSIZE)
 
     if args.savefig is not None:
-        if not args.combine: # Save ratio as separate figure
+        if not args.combine:  # Save ratio as separate figure
             name_pieces = args.savefig.split(".")
-            ratio_fname = ".".join(name_pieces[:-1])+"_ratio." + name_pieces[-1]
+            ratio_fname = ".".join(name_pieces[:-1])
+            ratio_fname += "_ratio.{0}".format(name_pieces[-1])
             plt.savefig(ratio_fname)
         else:
             plt.savefig(args.savefig)
