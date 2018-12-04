@@ -5,7 +5,7 @@ import numpy as np
 def load_NNLOJET_file(infile):
     """ Reads in NNLOJET file <infile> and returns a formatted
     dataframe with the contents of the file."""
-    df = pd.read_csv(infile, sep=" ", header=0, skipfooter=1, engine='python')
+    df = pd.read_csv(infile, delim_whitespace=True, header=0, skipfooter=1, engine='python')
     df.columns = df.columns[1:].append(pd.Index(["IGNORE"]))
     df.columns = pd.Index(i.split("[")[0] for i in df.columns)
     leading_column = df.columns[0]
